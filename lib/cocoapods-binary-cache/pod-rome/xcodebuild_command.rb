@@ -89,7 +89,7 @@ module PodPrebuild
       output = "#{output_path(target)}/#{target.product_module_name}.xcframework"
       FileUtils.rm_rf(output)
 
-      cmd = ["xcodebuild", " -create-xcframework"]
+      cmd = ["xcodebuild", " -create-xcframework", " -allow-internal-distribution"]
       cmd += sdks.map { |sdk| "-framework #{framework_path_of(target, sdk)}" }
       cmd << "-output" << output
       `#{cmd.join(" ")}`
