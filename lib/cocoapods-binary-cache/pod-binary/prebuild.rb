@@ -50,6 +50,7 @@ module Pod
         output_path: sandbox.generate_framework_path,
         bitcode_enabled: PodPrebuild.config.bitcode_enabled?,
         device_build_enabled: PodPrebuild.config.device_build_enabled?,
+        default_build_types: PodPrebuild.config.default_build_types,
         disable_dsym: PodPrebuild.config.disable_dsym?,
         args: PodPrebuild.config.build_args
       )

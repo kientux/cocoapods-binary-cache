@@ -56,6 +56,10 @@ Note:
 - Default: `false`.
 - Enable prebuilt frameworks to be used with devices.
 
+### `default_build_types`
+- Default: `[:simulator]`.
+- Useful on CI environment when we want to build for device only. Available values: `:simulator`, `:device`
+
 ### `xcframework`
 - Default: `false`.
 - Enable `xcframework` support. This is useful when prebuilding for multi architectures (for simulators & devices).\
