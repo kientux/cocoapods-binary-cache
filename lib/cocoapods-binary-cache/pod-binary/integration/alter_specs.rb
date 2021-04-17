@@ -2,6 +2,11 @@ module Pod
   class Installer
     def alter_specs_for_prebuilt_pods
       cache = []
+
+      @original_specs = analysis_result.specifications
+        .map { |spec| [spec.name, Pod::Specification.from_file(spec.defined_in_file)] }
+        .to_h
+
       analysis_result.specifications
         .select { |spec| should_integrate_prebuilt_pod?(spec.root.name) }
         .group_by(&:root)
@@ -21,7 +26,19 @@ module Pod
 
     private
 
+    def metadata_of_target(name)
+      @metadata_by_target ||= {}
+      metadata = @metadata_by_target[name]
+      return metadata unless metadata.nil?
+
+      framework_path = sandbox.prebuild_sandbox.framework_folder_path_for_target_name(name)
+      metadata = PodPrebuild::Metadata.in_dir(framework_path)
+      @metadata_by_target[name] = metadata
+      metadata
+    end
+
     def alter_spec(spec, alterations, cache)
+      metadata = metadata_of_target(spec.root.name)
       targets = Pod.fast_get_targets_for_pod_name(spec.root.name, pod_targets, cache)
       platforms = targets.map { |target| target.platform.name.to_s }.uniq
 
@@ -38,9 +55,29 @@ module Pod
       end
 
       empty_source_files(spec, platforms) if alterations[:source_files]
-      tweak_resources_for_xib(spec, platforms) if alterations[:resources]
-      tweak_resources_for_resource_bundles(spec, platforms) if alterations[:resources]
+      if alterations[:resources]
+        if metadata.static_framework?
+          tweak_resources_for_xib(spec, platforms)
+          tweak_resources_for_resource_bundles(spec, platforms)
+        else
+          # For dynamic frameworks, resources & resource bundles are already bundled inside the framework.
+          # We need to empty resources & resource bundles. Otherwise, there will be duplications
+          # (resources locating in both app bundle and framework bundle)
+          empty_resources(spec, platforms)
+        end
+      end
       empty_liscence(spec) if alterations[:license]
+    end
+
+    def empty_resources(spec, platforms)
+      spec.attributes_hash["resources"] = nil
+      spec.attributes_hash["resource_bundles"] = nil
+      platforms.each do |platform|
+        next if spec.attributes_hash[platform].nil?
+
+        spec.attributes_hash[platform]["resources"] = nil
+        spec.attributes_hash[platform]["resource_bundles"] = nil
+      end
     end
 
     def tweak_resources_for_xib(spec, platforms)

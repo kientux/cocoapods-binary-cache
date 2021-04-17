@@ -43,6 +43,10 @@ module PodPrebuild
       end
     end
 
+    def preferred_sdk
+      @preferred_sdk ||= sdks.include?(device) ? device : sdks[0]
+    end
+
     def build_types
       @build_types ||= begin
         # TODO (thuyen): Add DSL options `build_for_types` to specify build types
@@ -78,15 +82,16 @@ module PodPrebuild
         configuration: configuration,
         sdk: sdk,
         deployment_target: targets.map { |t| t.platform.deployment_target }.max.to_s,
+        log_path: log_path(sdk),
         args: sdk == simulator ? @build_args[:simulator] : @build_args[:device]
       )
     end
 
     def create_xcframework(target)
-      non_framework_paths = Dir[target_products_dir_of(target, sdks[0]) + "/*"] \
-        - [framework_path_of(target, sdks[0])] \
-        - dsym_paths_of(target, sdks[0]) \
-        - bcsymbolmap_paths_of(target, sdks[0])
+      non_framework_paths = Dir[target_products_dir_of(target, preferred_sdk) + "/*"] \
+        - [framework_path_of(target, preferred_sdk)] \
+        - dsym_paths_of(target, preferred_sdk) \
+        - bcsymbolmap_paths_of(target, preferred_sdk)
       collect_output(target, non_framework_paths)
 
       output = "#{output_path(target)}/#{target.product_module_name}.xcframework"
@@ -247,6 +252,10 @@ module PodPrebuild
 
     def disable_dsym?
       @options[:disable_dsym]
+    end
+
+    def log_path(sdk)
+      @options[:log_path].nil? ? nil : "#{@options[:log_path]}_#{sdk}"
     end
   end
 end
