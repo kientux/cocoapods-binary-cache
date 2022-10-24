@@ -56,7 +56,7 @@ Note:
 - Default: `false`.
 - Enable prebuilt frameworks to be used with devices.
 
-### `default_build_types`
+### `build_for_types`
 - Default: `[:simulator]`.
 - Useful on CI environment when we want to build for device only. Available values: `:simulator`, `:device`
 

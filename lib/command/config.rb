@@ -105,8 +105,8 @@ module PodPrebuild
       @dsl_config[:device_build_enabled]
     end
 
-    def default_build_types
-      @dsl_config[:default_build_types]
+    def build_for_types
+      @dsl_config[:build_for_types]
     end
 
     def xcframework?
@@ -193,7 +193,7 @@ module PodPrebuild
         :prebuild_code_gen,
         :strict_diagnosis,
         :silent_build,
-        :default_build_types
+        :build_for_types
       ]
     end
 
