@@ -60,6 +60,18 @@ Note:
 - Default: `[:simulator]`.
 - Useful on CI environment when we want to build for device only. Available values: `:simulator`, `:device`
 
+### `simulator_is_arm`
+- Default: `false`.
+- If set to `true`, prebuilt framework for simulator will contains only `arm64` arch to save build time.
+Can be use when build on ARM macs:
+  ```
+  is_arm = `arch`.start_with? 'arm64'
+  config_cocoapods_binary_cache(
+      // ...
+      simulator_is_arm: true
+    )
+  ```
+
 ### `xcframework`
 - Default: `false`.
 - Enable `xcframework` support. This is useful when prebuilding for multi architectures (for simulators & devices).\

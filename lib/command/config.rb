@@ -109,6 +109,10 @@ module PodPrebuild
       @dsl_config[:build_for_types]
     end
 
+    def simulator_is_arm
+      @dsl_config[:simulator_is_arm]
+    end
+
     def xcframework?
       @dsl_config[:xcframework]
     end
@@ -193,7 +197,8 @@ module PodPrebuild
         :prebuild_code_gen,
         :strict_diagnosis,
         :silent_build,
-        :build_for_types
+        :build_for_types,
+        :simulator_is_arm
       ]
     end
 
